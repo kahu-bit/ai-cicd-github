@@ -19,6 +19,9 @@ dev = [
     "build>=1.0.0",
 ]
 
+[tool.setuptools]
+py-modules = ["app"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
