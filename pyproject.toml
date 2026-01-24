@@ -8,10 +8,15 @@ version = "0.1.0"
 description = "A starter project for learning GitHub Actions CI/CD"
 readme = "README.md"
 requires-python = ">=3.9"
-license = {text = "MIT"}
+license = "MIT"
 authors = [
     {name = "Your Name", email = "you@example.com"}
 ]
+
+# Explicitly tell setuptools what to include
+[tool.setuptools]
+py-modules = ["app", "dangerous"]
+packages = []
 
 [project.optional-dependencies]
 dev = [
