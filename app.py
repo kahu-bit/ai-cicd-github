@@ -21,10 +21,3 @@ def multiply(a,b):
     return a * b
 
 
-def factorial(n):
-    """Calculate the factorial of n."""
-    if n < 0:
-        raise ValueError("Factorial not defined for negative numbers")
-    if n <= 1:
-        return 1
-    return n * factorial(n - 1)
