@@ -32,32 +32,40 @@ def analyze_code(code_content: str, file_path: str) -> dict:
     """Send code to Gemini for dead code analysis."""
     prompt = f"""Analyze the following Python code and identify any dead code.
 
-Look for:
-1. Unused functions (defined but never called within this file)
-2. Dead imports (imported but never used)
-3. Unreachable code (code after return statements, etc.)
+            Look for:
+            1. Unused functions (defined but never called within this file)
+            2. Dead imports (imported but never used)
+            3. Unreachable code (code after return statements, etc.)
 
-File: {file_path}
+            # Add time estimation guidelines here
+            # Simple fixes: ~2-5 min, Medium: ~10-15 min, Complex: ~30+ min
+            For each finding, estimate the cleanup time required. Simple fixes -> 2-5 mins, Medium fixes -> 10-15 mins, Complex fixes -> 30+ mins
 
-Code:
+            File: {file_path}
 
-{code_content}
+            Code:
 
 
-Respond in JSON format with this structure:
-{{
-    "findings": [
-        {{
-            "type": "unused_function" | "dead_import" | "unreachable_code",
-            "name": "name of the function/import/code",
-            "line": line_number,
-            "description": "brief description of why this is dead code"
-        }}
-    ]
-}}
+            {code_content}
 
-If no dead code is found, return: {{"findings": []}}
-Only return the JSON, no additional text."""
+            Respond in JSON format with this structure:
+            {{
+                "findings": [
+                    {{
+                        "type": "unused_function" | "dead_import" | "unreachable_code",
+                        "name": "name of the function/import/code",
+                        "line": line_number,
+                        "description": "brief description of why this is dead code",
+                        # Add the new fields for time estimates
+                        "estimated_minutes": number, "complexity": simple | medium | complex, "reasoning": explanation of the issue
+                    }}
+                ]
+            }}
+
+            If no dead code is found, return: {{"findings": []}}
+
+            Only return the JSON, no additional text."""
+
 
     try:
         response = client.models.generate_content(
@@ -72,33 +80,21 @@ Only return the JSON, no additional text."""
     except Exception as e:
         return {"error": str(e), "findings": []}
 
-def format_findings_markdown(all_findings: list[dict]) -> str:
-    """Format all findings as markdown for a GitHub Issue."""
+def format_findings_as_markdown(all_findings: list[dict]) -> str:
+    """Format all findings as markdown with time estimates."""
     if not all_findings:
-        return "## Stale Code Report\n\nNo dead code detected in this scan."
+        return "No dead code detected in this scan."
+
+    # Calculate total cleanup time
+    # Hint: sum up all estimated_minutes, defaulting to 0 if missing
+    total_minutes = sum(f.get("estimated_minutes", 0) for f in all_findings)
 
     markdown = "## Stale Code Report\n\n"
-    markdown += f"Found {len(all_findings)} potential issues:\n\n"
+    markdown += f"**{len(all_findings)}** issues found ~**{total_minutes} minutes** total cleanup\n\n"
 
-    by_type = {}
-    for finding in all_findings:
-        finding_type = finding.get("type", "unknown")
-        if finding_type not in by_type:
-            by_type[finding_type] = []
-        by_type[finding_type].append(finding)
-
-    type_labels = {
-        "unused_function": "Unused Functions",
-        "dead_import": "Dead Imports",
-        "unreachable_code": "Unreachable Code"
-    }
-
-    for finding_type, findings in by_type.items():
-        label = type_labels.get(finding_type, finding_type)
-        markdown += f"### {label}\n\n"
-        for f in findings:
-            markdown += f"- **{f.get('name', 'Unknown')}** ({f.get('file', 'unknown')}:{f.get('line', '?')})\n"
-            markdown += f"  - {f.get('description', 'No description')}\n\n"
+    for f in all_findings:
+        mins = f.get("estimated_minutes", "?")
+        markdown += f"- **{f.get('name')}** (~{mins} min) - {f.get('description')}\n"
 
     return markdown
 
@@ -119,7 +115,7 @@ def main():
             print(f"  Skipping due to read error")
             continue
 
-        time.sleep(35)
+        time.sleep(18)
         result = analyze_code(content, file_path)
         
 
@@ -131,7 +127,7 @@ def main():
             finding["file"] = file_path
             all_findings.append(finding)
 
-    markdown_report = format_findings_markdown(all_findings)
+    markdown_report = format_findings_as_markdown(all_findings)
     print("\n" + "=" * 50)
     print(markdown_report)
 
