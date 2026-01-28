@@ -121,6 +121,8 @@ def main():
 
         result = analyze_code(content, file_path)
 
+        time.delay(12)
+
         if "error" in result:
             print(f"  Analysis error: {result['error']}")
             continue
