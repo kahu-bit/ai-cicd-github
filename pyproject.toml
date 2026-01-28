@@ -9,12 +9,12 @@ description = "A starter project for learning GitHub Actions CI/CD"
 readme = "README.md"
 requires-python = ">=3.9"
 license = "MIT"
-
-[tool.setuptools]
-py-modules = ["app", "more_utils"]
 authors = [
     {name = "Your Name", email = "you@example.com"}
 ]
+
+[tool.setuptools]
+py-modules = ["app", "more_utils"]
 
 [project.optional-dependencies]
 dev = [
