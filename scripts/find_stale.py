@@ -119,9 +119,9 @@ def main():
             print(f"  Skipping due to read error")
             continue
 
-        result = analyze_code(content, file_path)
-
         time.sleep(12)
+        result = analyze_code(content, file_path)
+        
 
         if "error" in result:
             print(f"  Analysis error: {result['error']}")
