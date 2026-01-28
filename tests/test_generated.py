@@ -1,4 +1,3 @@
-```python
 import pytest
 from more_utils import is_palindrome
 
@@ -30,4 +29,3 @@ def test_is_palindrome_with_none_input_raises_error():
     """Test the edge case of None input, which should raise an AttributeError."""
     with pytest.raises(AttributeError):
         is_palindrome(None)
-```
